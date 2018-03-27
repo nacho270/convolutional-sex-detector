@@ -2,11 +2,11 @@
 
 This is an academic project, a prototype.
 
-The main idea is to create a convolutional neural network trained with a few sexual images (~1000 ... finally, these whatsapp groups finally get a good use) to detect new images.
+The main idea is to create a convolutional neural network trained with a few sexual images (~1000 ... finally, these whatsapp groups get a good use) to detect new images.
 
 Flask will be used to POST a new image, analyze it and return a result of such analysis.
 
-Bear in mind that **I am NOT a Python developer**, and therefore the code might not as be elegant a proper Python developer would expect or be configured properly (sorry, I learned during the process).
+Bear in mind that **I am NOT a Python developer**, and therefore the code might not be as elegant as a proper Python developer would expect or to be configured properly (sorry, I learned during the process).
 
 Feel free to fork this project and continue to carry on with the development and please, make it elegant (not like me, though I tried my best).
 
