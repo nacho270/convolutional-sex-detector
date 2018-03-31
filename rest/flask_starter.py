@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, redirect,flash
-
+from convolution import test_tensorflow
 
 def start_flask():
     app = Flask(__name__)
@@ -9,10 +9,17 @@ def start_flask():
         return 'Hello World!'
 
     @app.route('/test', methods=['GET'])
-    def ping_pong():
+    def test():
         return jsonify({
             'status': 'success',
             'message': 'pong!'
+        })
+
+    @app.route('/tensor', methods=['GET'])
+    def ping_pong():
+        return jsonify({
+            'status': 'success',
+            'message': str(test_tensorflow.run_tf_exampe())
         })
 
     @app.route('/post', methods=['POST'])
