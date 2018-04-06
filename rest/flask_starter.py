@@ -1,7 +1,9 @@
 from flask import Flask, jsonify, request, redirect,flash
 from convolution import test_tensorflow
+from convolution import image_classifier
 
 def start_flask():
+
     app = Flask(__name__)
 
     @app.route('/')
@@ -32,6 +34,14 @@ def start_flask():
             'status': 'success',
             'message': 'found file' + file.filename
         })
+
+    @app.route('/classify', methods=['POST'])
+    def classify_image():
+        if 'image' not in request.files:
+            flash('No image')
+            return redirect(request.url)
+        image = request.files['image']
+        return jsonify(image_classifier.classify_image(image))
 
     app.secret_key = 'nacho'
 
