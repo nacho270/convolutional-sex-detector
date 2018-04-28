@@ -27,7 +27,6 @@ def start_flask():
     @app.route('/post', methods=['POST'])
     def post_image():
         if 'file' not in request.files:
-            flash('No file part')
             return redirect(request.url)
         file = request.files['file']
         return jsonify({
@@ -38,11 +37,9 @@ def start_flask():
     @app.route('/classify', methods=['POST'])
     def classify_image():
         if 'image' not in request.files:
-            flash('No image')
             return redirect(request.url)
         image = request.files['image']
         return jsonify(image_classifier.classify_image(image))
 
-    app.secret_key = 'nacho'
 
     app.run()

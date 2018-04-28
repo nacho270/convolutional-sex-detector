@@ -7,17 +7,17 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def classify_image(image_data):
 
-    # TOOD: CHECK SUPPORT FOR PNG
+    # TODO: CHECK SUPPORT FOR PNG
     # https://stackoverflow.com/questions/34484148/feeding-image-data-in-tensorflow-for-transfer-learning
     # map to return prediction
     image_prediction = {}
 
     # Loads label file, strips off carriage return
     label_lines = [line.rstrip() for line
-                   in tf.gfile.GFile("tf_files/retrained_labels.txt")]
+                   in tf.gfile.GFile("/Users/nacho/Documents/dev/python/convolutional-sex-detector/convolution/tf_files/output_labels.txt")]
 
     # Unpersists graph from file
-    with tf.gfile.FastGFile("tf_files/graph_model.pb", 'rb') as f:
+    with tf.gfile.FastGFile("/Users/nacho/Documents/dev/python/convolutional-sex-detector/convolution/tf_files/output_graph.pb", 'rb') as f:
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(f.read())
         _ = tf.import_graph_def(graph_def, name='')

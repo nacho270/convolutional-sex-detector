@@ -1,2 +1,13 @@
-.idea
+\.idea
 */__pycache__
+*.jpg
+*.JPG
+*.jpeg
+*.png
+*.PNG
+*.bmp
+*.BMP
+*.jpg.txt
+*.jpeg.txt
+convolution/tf_files/*
+
