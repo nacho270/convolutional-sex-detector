@@ -15,8 +15,10 @@ I developed this using PyCharm as IDE, just in case you wonder
 ## Dependencies
 
 - Python 3.6 or higher
-- Tensorflow 1.6.0
+- Tensorflow 1.8.0
 - Flask 0.12.2
+- Tensorflow Hub (`pip3 install tensorflow-hub`)
+- On mac, run `/Applications/Python 3.6/Install Certificates.command`
 
 If you want to find out which version of the libraries you have installed, run in your console:
 
