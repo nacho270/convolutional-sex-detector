@@ -113,7 +113,6 @@ tensorflow_model_server --port=9000 --model_name=my_image_classifier \
 ```
 """
 
-
 #IMPORTS
 
 from __future__ import absolute_import
@@ -164,11 +163,6 @@ def detect_devices():
 
 
 def ensure_dir_exists(dir_name):
-    """Makes sure the folder exists on disk.
-
-    Args:
-      dir_name: Path string to the folder we want to create.
-    """
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
 
@@ -201,6 +195,7 @@ def load_images(image_dir, testing_percentage, validation_percentage):
 
     is_root_dir = True
     for sub_dir in sub_dirs:
+
         if is_root_dir:
             # Skip root directory
             is_root_dir = False
@@ -308,6 +303,7 @@ def add_new_layer(class_count, final_tensor_name, bottleneck_tensor, quantize_la
         ground_truth_input = tf.placeholder(tf.int64, [batch_size], name='GroundTruthInput')
 
     layer_name = 'final_retrain_ops'
+
     with tf.name_scope(layer_name):
 
         with tf.name_scope('weights'):
@@ -350,12 +346,13 @@ def add_new_layer(class_count, final_tensor_name, bottleneck_tensor, quantize_la
 
 
 def variable_summaries(var):
-    """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
     with tf.name_scope('summaries'):
         mean = tf.reduce_mean(var)
         tf.summary.scalar('mean', mean)
+
         with tf.name_scope('stddev'):
             stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+
         tf.summary.scalar('stddev', stddev)
         tf.summary.scalar('max', tf.reduce_max(var))
         tf.summary.scalar('min', tf.reduce_min(var))
@@ -455,14 +452,15 @@ def determine_and_cache_bottlenecks(sess, image_lists, image_dir, bottleneck_dir
 
     how_many_bottlenecks = 0
     ensure_dir_exists(bottleneck_dir)
+
     for label_name, label_lists in image_lists.items():
         for category in ['training', 'testing', 'validation']:
             category_list = label_lists[category]
             for index, unused_base_name in enumerate(category_list):
-                get_or_create_bottleneck( sess, image_lists, label_name, index, image_dir, category, bottleneck_dir,
-                                          jpeg_data_tensor, decoded_image_tensor, resized_input_tensor, bottleneck_tensor, module_name)
-
+                get_or_create_bottleneck(sess, image_lists, label_name, index, image_dir, category, bottleneck_dir,
+                                         jpeg_data_tensor, decoded_image_tensor, resized_input_tensor, bottleneck_tensor, module_name)
                 how_many_bottlenecks += 1
+
                 if how_many_bottlenecks % 100 == 0:
                     tf.logging.info('{} bottleneck files created for {}.'.format(str(how_many_bottlenecks), category))
 
@@ -614,24 +612,8 @@ def get_random_cached_bottlenecks(sess, image_lists, how_many, category, bottlen
                 filenames.append(image_name)
     return bottlenecks, ground_truths, filenames
 
-
+# Returns a path to an image for a label at the given index.
 def get_image_path(image_lists, label_name, index, image_dir, category):
-    """Returns a path to an image for a label at the given index.
-
-    Args:
-      image_lists: OrderedDict of training images for each label.
-      label_name: Label string we want to get an image for.
-      index: Int offset of the image we want. This will be moduloed by the
-      available number of images for the label, so it can be arbitrarily large.
-      image_dir: Root folder string of the subfolders containing the training
-      images.
-      category: Name string of set to pull images from - training, testing, or
-      validation.
-
-    Returns:
-      File system path string to an image that meets the requested parameters.
-
-    """
     if label_name not in image_lists:
         tf.logging.fatal('Label does not exist %s.', label_name)
     label_lists = image_lists[label_name]
@@ -649,9 +631,9 @@ def get_image_path(image_lists, label_name, index, image_dir, category):
 
 
 def run_bottleneck_on_image(sess, image_data, image_data_tensor, decoded_image_tensor, resized_input_tensor, bottleneck_tensor):
-    # Decode the JPEG image, resize it, and rescale the pixel values.
+    # Decode the JPEG image.
     resized_input_values = sess.run(decoded_image_tensor, {image_data_tensor: image_data})
-    # Then run it through the recognition network.
+    # Run it through the recognition network.
     bottleneck_values = sess.run(bottleneck_tensor, {resized_input_tensor: resized_input_values})
     bottleneck_values = np.squeeze(bottleneck_values)
     return bottleneck_values
@@ -660,9 +642,7 @@ def run_bottleneck_on_image(sess, image_data, image_data_tensor, decoded_image_t
 def save_graph_to_file(graph, graph_file_name, module_spec, class_count):
     sess, _, _, _, _, _ = build_eval_session(module_spec, class_count)
     graph = sess.graph
-
-    output_graph_def = tf.graph_util.convert_variables_to_constants(
-        sess, graph.as_graph_def(), [FLAGS.final_tensor_name])
+    output_graph_def = tf.graph_util.convert_variables_to_constants(sess, graph.as_graph_def(), [FLAGS.final_tensor_name])
 
     with tf.gfile.FastGFile(graph_file_name, 'wb') as f:
         f.write(output_graph_def.SerializeToString())
@@ -684,7 +664,8 @@ def run_final_eval(train_session, module_spec, class_count, image_lists, jpeg_da
         feed_dict={
             bottleneck_input: test_bottlenecks,
             ground_truth_input: test_ground_truth
-        })
+        }
+    )
 
     tf.logging.info('Final test accuracy = %.1f%% (N=%d)' % (test_accuracy * 100, len(test_bottlenecks)))
 
@@ -696,12 +677,13 @@ def run_final_eval(train_session, module_spec, class_count, image_lists, jpeg_da
 
 
 def build_eval_session(module_spec, class_count):
-    eval_graph, bottleneck_tensor, resized_input_tensor, wants_quantization = (create_module_graph(module_spec))
 
+    eval_graph, bottleneck_tensor, resized_input_tensor, wants_quantization = (create_module_graph(module_spec))
     eval_sess = tf.Session(graph=eval_graph)
+
     with eval_graph.as_default():
         (_, _, bottleneck_input, ground_truth_input, final_tensor) =\
-            add_new_layer( class_count, FLAGS.final_tensor_name, bottleneck_tensor, wants_quantization, is_training=False)
+            add_new_layer( class_count, FLAGS.final_tensor_name, bottleneck_tensor, wants_quantization, is_training = False)
 
         tf.train.Saver().restore(eval_sess, CHECKPOINT_NAME)
 
