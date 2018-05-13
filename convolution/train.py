@@ -632,6 +632,7 @@ def main(_):
                 validation_summary, validation_accuracy = sess.run([merged, evaluation_step], feed_dict={bottleneck_input: validation_bottlenecks, ground_truth_input: validation_ground_truth})
                 validation_writer.add_summary(validation_summary, i)
                 logger.info('Step %d: Validation accuracy = %.1f%% (N=%d)' % (i, validation_accuracy * 100, len(validation_bottlenecks)))
+                logger.info('==============================================================')
 
         # TRAINING COMPLETE
         # Run evaluation with some new images not used before.
