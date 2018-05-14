@@ -473,7 +473,7 @@ def get_random_distorted_bottlenecks(sess, image_lists, how_many, category, imag
 
 """ Construct a network of operations to apply them to an image.
 
-    If the distortions are to be applied, apply crops, scales and flips to support real world variations and, thus, have a more effective model.
+    If the distortions are to be applied, apply crops, scales and brightness changes to support real world variations and, thus, have a more effective model.
 
     Cropping
 

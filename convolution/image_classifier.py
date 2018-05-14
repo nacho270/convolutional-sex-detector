@@ -1,6 +1,7 @@
 import tensorflow as tf
 import os
 import argparse
+import json
 
 # Disable tensorflow compilation warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -44,7 +45,7 @@ def main(params):
     f = open(image_path, 'rb+')
     jpg_data = f.read()
     f.close()
-    classify_image(jpg_data)
+    print(json.dumps(classify_image(jpg_data)))
 
 
 if __name__ == '__main__':
