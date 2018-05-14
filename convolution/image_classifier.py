@@ -1,8 +1,10 @@
 import tensorflow as tf
 import os
+import argparse
 
 # Disable tensorflow compilation warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 
 def classify_image(image_data):
 
@@ -35,3 +37,18 @@ def classify_image(image_data):
             image_prediction[image_class] = str(score)
 
     return image_prediction
+
+
+def main(params):
+    image_path = params.image_path
+    f = open(image_path, 'rb+')
+    jpg_data = f.read()
+    f.close()
+    classify_image(jpg_data)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--image_path", type=str)
+    args = parser.parse_args()
+    main(args)
