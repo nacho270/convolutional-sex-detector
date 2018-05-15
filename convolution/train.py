@@ -50,12 +50,10 @@ from __future__ import division
 from __future__ import print_function
 
 import argparse
-from datetime import datetime
 import hashlib
 import os.path
 import random
 import re
-import struct
 import sys
 import tarfile
 import logging
@@ -68,10 +66,11 @@ from tensorflow.python.framework import graph_util
 from tensorflow.python.framework import tensor_shape
 from tensorflow.python.platform import gfile
 from tensorflow.python.util import compat
+from tensorflow.python.client import device_lib
 
 # END OF IMPORTS
 
-logging.basicConfig(format='%(asctime)s %(message)s')
+logging.basicConfig(format='%(asctime)s || %(message)s')
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -94,6 +93,19 @@ RESIZED_INPUT_TENSOR_NAME = 'ResizeBilinear:0'
 MAX_NUM_IMAGES_PER_CLASS = 2 ** 27 - 1  # ~134M
 MIN_NUM_IMAGES_PER_CLASS = 20
 
+
+def detect_devices():
+    logger.info("Detecting devices")
+    local_device_protos = device_lib.list_local_devices()
+    gpus = [x.name for x in local_device_protos if x.device_type == 'GPU']
+    cpus = [x.name for x in local_device_protos if x.device_type == 'CPU']
+    if gpus:
+        for g in gpus:
+            logger.info("GPU {} detected".format(g).upper())
+    else:
+        logger.info("NO GPU DETECTED, USING CPU")
+        for c in cpus:
+            logger.info("CPU {} detected".format(c))
 
 # Downloads the inception v3 model.
 def download_inception_v3():
@@ -548,6 +560,8 @@ def main(_):
     if tf.gfile.Exists(FLAGS.summaries_dir):
         tf.gfile.DeleteRecursively(FLAGS.summaries_dir)
     tf.gfile.MakeDirs(FLAGS.summaries_dir)
+
+    detect_devices()
 
     # Set up the pre-trained graph.
     download_inception_v3()
