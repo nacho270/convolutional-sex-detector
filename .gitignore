@@ -10,4 +10,4 @@
 *.jpg.txt
 *.jpeg.txt
 convolution/tf_files/*
-
+*.csv

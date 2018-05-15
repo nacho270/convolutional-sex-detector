@@ -16,13 +16,13 @@
 """
 Image learning network based on Inception v3 architecture model.
 
-This model adds a new top layer to Inception model (based on ImageNet images)
-than recognize sexual images to be used in websites moderation modules.
+This model adds a new feature to the features layer if the Inception model (based on ImageNet images)
+that recognizes sexual images to be used in websites moderation modules.
 
 Bare in mind that is an academic model and might no scale to heavy traffic without a proper bigdata architecture.
 
-The top layer receives as input a 2048-dimensional array for each image.
-Then, the a softmax layer is trained on top.
+The layer receives as input a 2048-dimensional array for each image.
+Sparse cross entropy softmax is used to calculate loss and gradient descent optimizer to minimiza that loss.
 
 Folder organization example:
 
@@ -32,12 +32,6 @@ Folder organization example:
 - photos/SFW/sfw_photo2.jpg
 
 The subfolders indicate the label (class) of each image. File names are not important.
-
-Execution example
-
-```bash
-python convolutional-sex-detector/convolution/retrain.py --image_dir ~/photos
-```
 
 Sorry for the method documentation format, i don't like python standard xD
 It's hard to read and annoying in the middle of the method.
@@ -76,6 +70,8 @@ logger.setLevel(logging.INFO)
 
 SUPPORTED_EXTENSIONS = ['jpg', 'jpeg', 'JPG', 'JPEG']
 script_dir = os.path.dirname(__file__)
+
+outputFilePath = "simple_output.csv"
 
 # GLOBAL FLAGS FOR TF
 FLAGS = None
@@ -610,8 +606,15 @@ def main(_):
         logger.info("Writing down validation summary at {}".format(FLAGS.summaries_dir + '/validation'))
         validation_writer = tf.summary.FileWriter(FLAGS.summaries_dir + '/validation')
 
-        #Init weights
+        # Init weights
         sess.run(tf.global_variables_initializer())
+
+        # Init simple output file
+        if os.path.exists(outputFilePath):
+            os.remove(outputFilePath)
+
+        outputFile = open(outputFilePath, "w")
+        outputFile.write("step,train_accuracy,cross_entropy,validation_accuracy\n")
 
         # TRAIN USING THE REQUIRED STEPS QUANTITY
         logger.info("Training using {} steps".format(FLAGS.training_steps))
@@ -631,24 +634,31 @@ def main(_):
                                                                          ground_truth_input: train_ground_truth})
             train_writer.add_summary(train_summary, i)
 
-            is_last_step = (i + 1 == FLAGS.training_steps)
-            if (i % FLAGS.eval_step_interval) == 0 or is_last_step:
-                train_accuracy, cross_entropy_value = sess.run([evaluation_step, cross_entropy], feed_dict={bottleneck_input: train_bottlenecks,
-                                                                                                             ground_truth_input: train_ground_truth})
+            train_accuracy, cross_entropy_value = sess.run([evaluation_step, cross_entropy],
+                                                           feed_dict={bottleneck_input: train_bottlenecks,
+                                                                      ground_truth_input: train_ground_truth})
 
-                logger.info('Step %d: Train accuracy = %.1f%%' % (i, train_accuracy * 100))
-                logger.info('Step %d: Cross entropy = %f' % (i, cross_entropy_value))
+            logger.info('Step %d: Train accuracy = %.1f%%' % (i, train_accuracy * 100))
+            logger.info('Step %d: Cross entropy = %f' % (i, cross_entropy_value))
 
-                validation_bottlenecks, validation_ground_truth, _ = (
-                    get_random_cached_bottlenecks(sess, image_lists, FLAGS.validation_batch_size, 'validation',
-                        FLAGS.bottleneck_dir, FLAGS.image_dir, jpeg_data_tensor, bottleneck_tensor))
+            validation_bottlenecks, validation_ground_truth, _ = (
+                get_random_cached_bottlenecks(sess, image_lists, FLAGS.validation_batch_size, 'validation',
+                    FLAGS.bottleneck_dir, FLAGS.image_dir, jpeg_data_tensor, bottleneck_tensor)
+            )
 
-                validation_summary, validation_accuracy = sess.run([merged, evaluation_step], feed_dict={bottleneck_input: validation_bottlenecks, ground_truth_input: validation_ground_truth})
-                validation_writer.add_summary(validation_summary, i)
-                logger.info('Step %d: Validation accuracy = %.1f%% (N=%d)' % (i, validation_accuracy * 100, len(validation_bottlenecks)))
-                logger.info('==============================================================')
+            validation_summary, validation_accuracy = sess.run([merged, evaluation_step], feed_dict={bottleneck_input: validation_bottlenecks,
+                                                                                                     ground_truth_input: validation_ground_truth})
+            validation_writer.add_summary(validation_summary, i)
+
+            outputFile.write("{},{},{},{}\n".format(i,  train_accuracy, cross_entropy_value, validation_accuracy))
+            logger.info('Step %d: Validation accuracy = %.1f%% (N=%d)' % (i, validation_accuracy * 100, len(validation_bottlenecks)))
+            logger.info('==============================================================')
+
 
         # TRAINING COMPLETE
+
+        outputFile.close()
+
         # Run evaluation with some new images not used before.
         logger.info("Training complete. Running evaluation using {} new images".format(FLAGS.test_batch_size))
         test_bottlenecks, test_ground_truth, test_filenames = (
