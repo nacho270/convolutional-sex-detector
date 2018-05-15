@@ -10,13 +10,27 @@ The SFW dataset was downloaded from: http://www.vision.caltech.edu/pmoreels/Data
 
 As for the NSFW dataset, use your imagination.
 
+## Run
+
+There are 2 options to run this app
+    
+1 - Through the console:
+`python3 convolution/image_classifier.py --image_path "image_path.jpg"`
+
+2 - Through the REST api: `python3 main.py`
+ 
+ Then
+ 
+ `curl -X POST -F "image=@image_path.JPG" localhost:5000/classify`
+
+
 ## Dependencies
 
 - Python 3.6 or higher
 - Tensorflow 1.8.0
 - Flask 0.12.2
-- Tensorflow Hub (`pip3 install tensorflow-hub`)
-- On mac, run `/Applications/Python 3.6/Install Certificates.command` to install the necessary certificates to download the tensorflow-hub models.
+- Tensorboard (to monitor training) `pip3 install tensorboard`
+
 
 If you want to find out which version of the libraries you have installed, run in your console:
 

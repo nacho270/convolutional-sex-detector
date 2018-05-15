@@ -1,1 +1,1 @@
-
+from convolution.image_classifier import Classifier
