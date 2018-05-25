@@ -9,5 +9,8 @@
 *.BMP
 *.jpg.txt
 *.jpeg.txt
-convolution/tf_files/*
+convolution/tf_files/bottleneck/*
+convolution/tf_files/retrain_logs/*
+convolution/images/*
+
 *.csv
