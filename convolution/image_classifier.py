@@ -16,11 +16,11 @@ class Classifier:
     def __init__(self):
 
         # Loads labels
-        self._label_lines = [line.rstrip() for line in tf.gfile.GFile("/Users/nacho/Documents/dev/python/convolutional-sex-detector/convolution/tf_files/output_labels.txt")]
+        self._label_lines = [line.rstrip() for line in tf.gfile.GFile("tf_files/output_labels.txt")]
 
         logger.info("Loading model")
         # Load model
-        with tf.gfile.FastGFile( "/Users/nacho/Documents/dev/python/convolutional-sex-detector/convolution/tf_files/output_graph.pb", 'rb') as f:
+        with tf.gfile.FastGFile( "tf_files/output_graph.pb", 'rb') as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
             _ = tf.import_graph_def(graph_def, name='')
