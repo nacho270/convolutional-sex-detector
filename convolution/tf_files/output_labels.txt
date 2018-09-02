@@ -1,2 +1,2 @@
-nsfw
-sfw
+cat
+dog
