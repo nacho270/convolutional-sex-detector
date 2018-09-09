@@ -12,6 +12,7 @@
 
 - As for the NSFW dataset, use your imagination.
 
+BTW, there's a `cats_and_dogs` branch which i used to hand-in the proyect since the professor didn't allow use the real one when it was about an actual problem in real life when a user uploads a photo on a public website.
 
 ## Train
 
